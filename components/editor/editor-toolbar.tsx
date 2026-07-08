@@ -1,11 +1,19 @@
 "use client";
 
-import { FiCheck, FiSave, FiLock, FiLoader, FiPlay } from "react-icons/fi";
+import {
+  FiCheck,
+  FiSave,
+  FiLock,
+  FiLoader,
+  FiPlay,
+  FiMessageSquare,
+} from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import { PresenceAvatars } from "./presence-avatars";
 import { ExportMenu } from "./export-menu";
 import { useEditorStore } from "@/store/editor-store";
 import { useRun } from "@/hooks/use-run";
+import { useChatStore } from "@/store/chat-store";
 
 interface Props {
   workspaceId: string;
@@ -46,6 +54,8 @@ export function EditorToolbar({
   const save = useEditorStore((s) => s.save);
   const saveState = useEditorStore((s) => s.saveState);
   const { run, isRunning } = useRun();
+  const toggleChat = useChatStore((s) => s.toggle);
+  const unread = useChatStore((s) => s.unread);
 
   return (
     <div className="flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-1.5 dark:border-zinc-800 dark:bg-zinc-950">
@@ -61,6 +71,20 @@ export function EditorToolbar({
       </div>
 
       <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Toggle chat"
+          onClick={toggleChat}
+          className="relative"
+        >
+          <FiMessageSquare size={16} />
+          {unread > 0 && (
+            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-indigo-500 px-1 text-[10px] font-medium text-white">
+              {unread > 9 ? "9+" : unread}
+            </span>
+          )}
+        </Button>
         <ExportMenu
           workspaceId={workspaceId}
           workspaceName={workspaceName}

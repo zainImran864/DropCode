@@ -1,5 +1,6 @@
 "use client";
 
+import { LiveList } from "@liveblocks/client";
 import {
   ClientSideSuspense,
   LiveblocksProvider,
@@ -17,7 +18,11 @@ export function Room({
 }) {
   return (
     <LiveblocksProvider authEndpoint="/api/liveblocks-auth">
-      <RoomProvider id={`workspace:${workspaceId}`} initialPresence={{}}>
+      <RoomProvider
+        id={`workspace:${workspaceId}`}
+        initialPresence={{ typing: false }}
+        initialStorage={{ messages: new LiveList([]) }}
+      >
         <ClientSideSuspense fallback={<EditorSkeleton />}>
           {children}
         </ClientSideSuspense>

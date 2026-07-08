@@ -8,6 +8,7 @@ import { EditorToolbar } from "./editor-toolbar";
 import { EmptyEditorState } from "./empty-editor-state";
 import { EditorSkeleton } from "./editor-skeleton";
 import { OutputPanel } from "./output-panel";
+import { ChatSidebar } from "@/components/chat/chat-sidebar";
 import { useFileStore } from "@/store/file-store";
 import type { FileMeta } from "@/types/database";
 
@@ -84,6 +85,7 @@ export function EditorPane({
           </div>
           <OutputPanel />
         </div>
+        <ChatSidebar />
       </div>
     </Room>
   );

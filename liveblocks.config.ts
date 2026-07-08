@@ -1,11 +1,28 @@
+import type { LiveList } from "@liveblocks/client";
+
+/** A single chat message stored in the room's Liveblocks storage. */
+export type ChatMessage = {
+  id: string;
+  userId: string;
+  name: string;
+  color: string;
+  body: string;
+  at: number;
+};
+
 /**
  * Global Liveblocks types. Room id convention: `workspace:<workspaceId>`.
- * Cursors/selections are driven by Yjs awareness; Liveblocks Presence stays
- * empty and UserMeta carries the display info resolved by the auth endpoint.
+ * Editor cursors/selections use Yjs awareness; Liveblocks Presence carries the
+ * typing flag, Storage holds chat history, and UserMeta the display info.
  */
 declare global {
   interface Liveblocks {
-    Presence: Record<string, never>;
+    Presence: {
+      typing: boolean;
+    };
+    Storage: {
+      messages: LiveList<ChatMessage>;
+    };
     UserMeta: {
       id: string;
       info: {
