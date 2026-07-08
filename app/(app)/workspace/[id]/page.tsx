@@ -4,12 +4,14 @@ import { FiArrowLeft } from "react-icons/fi";
 import { getWorkspaceById } from "@/api/workspaces";
 import { getWorkspaceMembers } from "@/api/members";
 import { requireUser } from "@/lib/auth";
-import { publicEnv } from "@/lib/env";
+import { publicEnv, serverEnv } from "@/lib/env";
 import { buttonClasses } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MemberAvatars } from "@/components/workspace/member-avatars";
 import { ShareDialog } from "@/components/workspace/share-dialog";
-import { languageLabel } from "@/lib/languages";
+import { LanguageSwitcher } from "@/components/editor/language-switcher";
+import { EditorPane } from "@/components/editor/editor-pane";
+import { LiveblocksSetupNotice } from "@/components/editor/liveblocks-setup-notice";
 
 export default async function WorkspacePage({
   params,
@@ -23,10 +25,13 @@ export default async function WorkspacePage({
 
   const members = await getWorkspaceMembers(id);
   const myRole = members.find((m) => m.user_id === user.id)?.role ?? null;
+  const canManage = myRole === "owner" || myRole === "admin";
+  const readOnly = myRole === "viewer";
+  const liveblocksEnabled = Boolean(serverEnv().LIVEBLOCKS_SECRET_KEY);
 
   return (
-    <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
-      <header className="flex h-14 items-center justify-between border-b border-zinc-200 bg-white px-4 dark:border-zinc-800 dark:bg-zinc-950">
+    <div className="flex h-dvh flex-col overflow-hidden bg-zinc-50 dark:bg-black">
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-zinc-200 bg-white px-4 dark:border-zinc-800 dark:bg-zinc-950">
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard"
@@ -35,12 +40,12 @@ export default async function WorkspacePage({
           >
             <FiArrowLeft size={18} />
           </Link>
-          <div className="flex flex-col leading-tight">
-            <span className="font-semibold">{workspace.name}</span>
-            <span className="text-xs text-zinc-500">
-              {languageLabel(workspace.language)}
-            </span>
-          </div>
+          <span className="font-semibold">{workspace.name}</span>
+          <LanguageSwitcher
+            workspaceId={workspace.id}
+            language={workspace.language}
+            canManage={canManage}
+          />
         </div>
 
         <div className="flex items-center gap-3">
@@ -57,14 +62,15 @@ export default async function WorkspacePage({
         </div>
       </header>
 
-      <main className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-        <h1 className="text-2xl font-semibold">{workspace.name}</h1>
-        <p className="max-w-md text-zinc-500">
-          The real-time collaborative editor (Monaco + Liveblocks) lands here in
-          Phase 4. Invites, roles, and access control are live now — try the
-          Share button.
-        </p>
-      </main>
+      {liveblocksEnabled ? (
+        <EditorPane
+          workspaceId={workspace.id}
+          language={workspace.language}
+          readOnly={readOnly}
+        />
+      ) : (
+        <LiveblocksSetupNotice />
+      )}
     </div>
   );
 }
