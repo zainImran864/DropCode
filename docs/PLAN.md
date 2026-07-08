@@ -120,7 +120,7 @@ when the workspace already has 4 members (defense-in-depth alongside the join AP
 
 Each phase is shippable and testable on its own.
 
-**Progress:** ✅ Phase 0 done · ✅ Phase 1 done · ⏭️ **Phase 2 is next**
+**Progress:** ✅ Phase 0 · ✅ Phase 1 · ✅ Phase 2 · ⏭️ **Phase 3 is next**
 
 ### Phase 0 — Foundation & cleanup  ✅ **DONE**
 - [x] Remove redundant deps (§1), add new deps (§1) — also added `zustand`
@@ -144,14 +144,18 @@ Each phase is shippable and testable on its own.
   `http://localhost:3000` + `https://drop-code-liart.vercel.app` to Site URL & Redirect URLs.
   Set `NEXT_PUBLIC_SITE_URL` per environment. Rotate the DB password (was shared in chat).
 
-### Phase 2 — Workspaces  ⏭️ **NEXT**  → *Create Workspace, Owner/Admin Permissions*
-- [ ] Migration: `workspaces` + `workspace_members` tables, RLS policies, `is_member()` helper, max-4 trigger
-- [ ] Server actions / route handlers: create / list / get / delete workspace
-- [ ] Dashboard: list my workspaces, "New Workspace" dialog (pick language)
-- [ ] Role checks (owner/admin/editor/viewer) enforced by RLS + UI guards
-- **Done when:** owner can create workspaces and see them on a dashboard.
+### Phase 2 — Workspaces  ✅ **DONE**  → *Create Workspace, Owner/Admin Permissions*
+- [x] Migration `0002_workspaces.sql`: `workspaces` + `workspace_members`, RLS, `is_workspace_member()` / `workspace_role()` helpers, auto-owner trigger, **max-4 trigger**
+- [x] Server Actions `app/(app)/actions.ts`: create / delete (Zod-validated, `revalidatePath`); api `getWorkspaces` (w/ member counts), `getWorkspaceById`, `buildDashboardData`
+- [x] Modern dashboard: **sidebar shell** (`AppShell`/`Sidebar`/`Topbar`, collapsible via `ui-store`), stat cards, **Recharts** area + bar charts, workspace grid + empty state
+- [x] "New Workspace" dialog (Radix `Dialog` + RHF/Zod + language `Select`)
+- [x] Role checks enforced by RLS; owner-only delete in UI + policy
+- [x] Reusable additions: `Dialog`, `Select`, `Skeleton` + content-aware skeletons, `StatCard`, `ChartCard`, chart wrappers; route-level `loading.tsx`
+- [x] Workspace route `/workspace/[id]` (access-controlled placeholder; editor is Phase 4)
+- **Done:** create → appears on dashboard with live charts/stats → open → delete; build green.
+- **⚠️ Manual step (you):** run `supabase/migrations/0002_workspaces.sql` in the Supabase SQL editor.
 
-### Phase 3 — Invites & Sharing  → *Invite Members, Join via Link, Share Workspace*
+### Phase 3 — Invites & Sharing  ⏭️ **NEXT**  → *Invite Members, Join via Link, Share Workspace*
 - [ ] Generate `inviteToken` (nanoid); `/join/[token]` page
 - [ ] Join flow enforces **max 4 members**; assign default role (editor/viewer)
 - [ ] Share dialog: copy link, manage members, change roles, remove member
