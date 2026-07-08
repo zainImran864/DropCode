@@ -1,15 +1,17 @@
 "use client";
 
-import { FiCheck, FiSave, FiLock, FiLoader } from "react-icons/fi";
+import { FiCheck, FiSave, FiLock, FiLoader, FiPlay } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import { PresenceAvatars } from "./presence-avatars";
 import { ExportMenu } from "./export-menu";
 import { useEditorStore } from "@/store/editor-store";
+import { useRun } from "@/hooks/use-run";
 
 interface Props {
   workspaceId: string;
   workspaceName: string;
   activeFileName?: string;
+  activeFileLanguage?: string;
   canEdit: boolean;
   readOnly: boolean;
 }
@@ -37,11 +39,13 @@ export function EditorToolbar({
   workspaceId,
   workspaceName,
   activeFileName,
+  activeFileLanguage,
   canEdit,
   readOnly,
 }: Props) {
   const save = useEditorStore((s) => s.save);
   const saveState = useEditorStore((s) => s.saveState);
+  const { run, isRunning } = useRun();
 
   return (
     <div className="flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-1.5 dark:border-zinc-800 dark:bg-zinc-950">
@@ -62,6 +66,18 @@ export function EditorToolbar({
           workspaceName={workspaceName}
           activeFileName={activeFileName}
         />
+        {activeFileLanguage && (
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={isRunning}
+            onClick={() => run(activeFileLanguage)}
+            className="text-emerald-600"
+          >
+            <FiPlay size={14} className="mr-1.5" />
+            {isRunning ? "Running…" : "Run"}
+          </Button>
+        )}
         {canEdit && !readOnly && (
           <Button
             size="sm"

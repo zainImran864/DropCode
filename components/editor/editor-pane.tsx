@@ -7,6 +7,7 @@ import { FileExplorer } from "./file-explorer";
 import { EditorToolbar } from "./editor-toolbar";
 import { EmptyEditorState } from "./empty-editor-state";
 import { EditorSkeleton } from "./editor-skeleton";
+import { OutputPanel } from "./output-panel";
 import { useFileStore } from "@/store/file-store";
 import type { FileMeta } from "@/types/database";
 
@@ -65,6 +66,7 @@ export function EditorPane({
             workspaceId={workspaceId}
             workspaceName={workspaceName}
             activeFileName={activeFile?.name}
+            activeFileLanguage={activeFile?.language}
             canEdit={canEdit}
             readOnly={readOnly}
           />
@@ -80,6 +82,7 @@ export function EditorPane({
               <EmptyEditorState canEdit={canEdit} />
             )}
           </div>
+          <OutputPanel />
         </div>
       </div>
     </Room>
