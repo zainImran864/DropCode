@@ -20,6 +20,32 @@ export default async function WorkspacePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  try {
+    return await renderWorkspace(id);
+  } catch (err) {
+    // Let Next handle its own control-flow signals (redirect / notFound).
+    const digest = (err as { digest?: string })?.digest;
+    if (typeof digest === "string" && digest.startsWith("NEXT_")) throw err;
+
+    // TEMPORARY diagnostic: surface the real error (prod hides it otherwise).
+    return (
+      <div className="flex h-dvh flex-col items-center justify-center gap-3 bg-zinc-50 p-6 text-center dark:bg-black">
+        <h1 className="text-lg font-semibold">Workspace failed to load</h1>
+        <pre className="max-w-2xl overflow-auto whitespace-pre-wrap rounded bg-zinc-100 p-4 text-left text-xs text-red-600 dark:bg-zinc-900">
+          {(err as Error)?.message ?? String(err)}
+        </pre>
+        <Link
+          href="/dashboard"
+          className={buttonClasses({ variant: "outline", size: "sm" })}
+        >
+          Back to dashboard
+        </Link>
+      </div>
+    );
+  }
+}
+
+async function renderWorkspace(id: string) {
   const user = await requireUser();
   const workspace = await getWorkspaceById(id);
   if (!workspace) notFound();
@@ -27,7 +53,8 @@ export default async function WorkspacePage({
   const members = await getWorkspaceMembers(id);
   const myRole = members.find((m) => m.user_id === user.id)?.role ?? null;
   const canManage = myRole === "owner" || myRole === "admin";
-  const canEdit = myRole === "owner" || myRole === "admin" || myRole === "editor";
+  const canEdit =
+    myRole === "owner" || myRole === "admin" || myRole === "editor";
   const readOnly = myRole === "viewer";
   const liveblocksEnabled = Boolean(serverEnv().LIVEBLOCKS_SECRET_KEY);
   const files = liveblocksEnabled ? await getFiles(id) : [];

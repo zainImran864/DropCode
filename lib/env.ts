@@ -1,45 +1,44 @@
-import { z } from "zod";
+const DEFAULT_PISTON_URL = "https://emkc.org/api/v2/piston";
+
+/** Treat empty/whitespace-only env values the same as "not set". */
+function val(v: string | undefined): string | undefined {
+  const t = v?.trim();
+  return t ? t : undefined;
+}
+
+function isUrl(v: string | undefined): boolean {
+  if (!v) return false;
+  try {
+    new URL(v);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Public env — inlined into the browser bundle by Next.js. Safe to expose.
- * Validated eagerly at import so a missing/malformed value fails fast.
+ * Kept resilient (no throw) so a blank/misconfigured value on the host can
+ * never crash a render; falls back to sensible defaults.
  */
-const publicEnvSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
-  NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3000"),
-});
-
-export const publicEnv = publicEnvSchema.parse({
-  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+export const publicEnv = {
+  NEXT_PUBLIC_SUPABASE_URL: val(process.env.NEXT_PUBLIC_SUPABASE_URL) ?? "",
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-  NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
-});
+    val(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) ?? "",
+  NEXT_PUBLIC_SITE_URL:
+    val(process.env.NEXT_PUBLIC_SITE_URL) ?? "http://localhost:3000",
+};
 
 /**
- * Server-only secrets. Optional for now so the app boots before the
- * Liveblocks/admin keys exist; tighten to required in their phases.
+ * Server-only config. Never throws: a blank or invalid value is ignored so
+ * misconfiguration on the host degrades gracefully instead of 500-ing.
  * Never import the return value into a client component.
  */
-const serverEnvSchema = z.object({
-  SUPABASE_SECRET_KEY: z.string().min(1).optional(),
-  LIVEBLOCKS_SECRET_KEY: z.string().min(1).optional(),
-  PISTON_URL: z.string().url().default("https://emkc.org/api/v2/piston"),
-});
-
-let cached: z.infer<typeof serverEnvSchema> | null = null;
-
 export function serverEnv() {
-  if (typeof window !== "undefined") {
-    throw new Error("serverEnv() must not be called on the client");
-  }
-  if (!cached) {
-    cached = serverEnvSchema.parse({
-      SUPABASE_SECRET_KEY: process.env.SUPABASE_SECRET_KEY,
-      LIVEBLOCKS_SECRET_KEY: process.env.LIVEBLOCKS_SECRET_KEY,
-      PISTON_URL: process.env.PISTON_URL,
-    });
-  }
-  return cached;
+  const pistonRaw = val(process.env.PISTON_URL);
+  return {
+    SUPABASE_SECRET_KEY: val(process.env.SUPABASE_SECRET_KEY),
+    LIVEBLOCKS_SECRET_KEY: val(process.env.LIVEBLOCKS_SECRET_KEY),
+    PISTON_URL: isUrl(pistonRaw) ? pistonRaw! : DEFAULT_PISTON_URL,
+  };
 }
