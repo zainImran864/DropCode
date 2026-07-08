@@ -11,6 +11,7 @@ export function useRun() {
   const isRunning = useRunStore((s) => s.isRunning);
   const setRunning = useRunStore((s) => s.setRunning);
   const setResult = useRunStore((s) => s.setResult);
+  const setError = useRunStore((s) => s.setError);
   const setOpen = useRunStore((s) => s.setOpen);
 
   async function run(language: string) {
@@ -21,11 +22,13 @@ export function useRun() {
     }
     setOpen(true);
     setResult(null);
+    setError(null);
     setRunning(true);
     const res = await runCodeAction(language, content);
     setRunning(false);
     if (!res.ok) {
-      toast.error(res.error);
+      // Show the error in the output panel (persistent), not just a toast.
+      setError(res.error);
       return;
     }
     setResult(res.data);

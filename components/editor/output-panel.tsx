@@ -1,6 +1,6 @@
 "use client";
 
-import { FiX, FiLoader, FiTerminal } from "react-icons/fi";
+import { FiX, FiLoader, FiTerminal, FiAlertTriangle } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import { useRunStore } from "@/store/run-store";
 
@@ -8,6 +8,7 @@ export function OutputPanel() {
   const isOpen = useRunStore((s) => s.isOpen);
   const isRunning = useRunStore((s) => s.isRunning);
   const result = useRunStore((s) => s.result);
+  const error = useRunStore((s) => s.error);
   const setOpen = useRunStore((s) => s.setOpen);
 
   if (!isOpen) return null;
@@ -51,8 +52,13 @@ export function OutputPanel() {
           <div className="flex items-center gap-2 text-zinc-400">
             <FiLoader size={14} className="animate-spin" /> Running…
           </div>
+        ) : error ? (
+          <div className="flex items-start gap-2 rounded-md bg-red-50 p-3 text-red-600 dark:bg-red-500/10">
+            <FiAlertTriangle size={14} className="mt-0.5 shrink-0" />
+            <pre className="whitespace-pre-wrap wrap-break-word">{error}</pre>
+          </div>
         ) : result ? (
-          <div className="flex flex-col gap-2 whitespace-pre-wrap break-words">
+          <div className="flex flex-col gap-2 whitespace-pre-wrap wrap-break-word">
             {result.compileOutput && (
               <div>
                 <p className="mb-0.5 text-[10px] uppercase text-zinc-400">
