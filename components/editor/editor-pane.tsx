@@ -1,13 +1,21 @@
 "use client";
 
 import { useEffect } from "react";
+import dynamic from "next/dynamic";
 import { Room } from "./room";
 import { FileExplorer } from "./file-explorer";
 import { EditorToolbar } from "./editor-toolbar";
-import { CollaborativeEditor } from "./collaborative-editor";
 import { EmptyEditorState } from "./empty-editor-state";
+import { EditorSkeleton } from "./editor-skeleton";
 import { useFileStore } from "@/store/file-store";
 import type { FileMeta } from "@/types/database";
+
+// Load the Monaco editor client-only: y-monaco imports `monaco-editor`, which
+// touches browser globals at module load and would crash server rendering.
+const CollaborativeEditor = dynamic(
+  () => import("./collaborative-editor").then((m) => m.CollaborativeEditor),
+  { ssr: false, loading: () => <EditorSkeleton /> },
+);
 
 interface Props {
   workspaceId: string;

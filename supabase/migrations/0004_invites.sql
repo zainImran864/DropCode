@@ -69,7 +69,10 @@ begin
     raise exception 'Not authorized.';
   end if;
 
-  v_token := encode(gen_random_bytes(12), 'hex');
+  -- gen_random_uuid() is core (resolvable under empty search_path); avoid
+  -- gen_random_bytes() which lives in the extensions schema.
+  v_token := replace(gen_random_uuid()::text, '-', '')
+             || replace(gen_random_uuid()::text, '-', '');
   update public.workspaces set invite_token = v_token where id = p_workspace_id;
   return v_token;
 end;
