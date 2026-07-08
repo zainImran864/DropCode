@@ -120,7 +120,7 @@ when the workspace already has 4 members (defense-in-depth alongside the join AP
 
 Each phase is shippable and testable on its own.
 
-**Progress:** ✅ Phase 0 · ✅ Phase 1 · ✅ Phase 2 · ⏭️ **Phase 3 is next**
+**Progress:** ✅ Phase 0 · ✅ Phase 1 · ✅ Phase 2 · ✅ Phase 3 · ⏭️ **Phase 4 is next**
 
 ### Phase 0 — Foundation & cleanup  ✅ **DONE**
 - [x] Remove redundant deps (§1), add new deps (§1) — also added `zustand`
@@ -155,13 +155,17 @@ Each phase is shippable and testable on its own.
 - **Done:** create → appears on dashboard with live charts/stats → open → delete; build green.
 - **⚠️ Manual step (you):** run `supabase/migrations/0002_workspaces.sql` in the Supabase SQL editor.
 
-### Phase 3 — Invites & Sharing  ⏭️ **NEXT**  → *Invite Members, Join via Link, Share Workspace*
-- [ ] Generate `inviteToken` (nanoid); `/join/[token]` page
-- [ ] Join flow enforces **max 4 members**; assign default role (editor/viewer)
-- [ ] Share dialog: copy link, manage members, change roles, remove member
-- **Done when:** a second account can join via link and appears as a member.
+### Phase 3 — Invites & Sharing  ✅ **DONE**  → *Invite Members, Join via Link, Share Workspace*
+- [x] `invite_token` on workspace (DB default); `/join/[token]` page with preview + join
+- [x] Migration `0004_invites.sql`: `get_workspace_preview`, `join_workspace` (**max-4 enforced**, default role `editor`), `reset_invite_token` (security-definer RPCs)
+- [x] Share dialog: copy link, **reset link**, member list with role change + remove, leave workspace
+- [x] Member server actions (`member-actions.ts`) + `use-member-actions` hook; api `getWorkspaceMembers`, `getWorkspacePreview`
+- [x] Reusable additions: `Avatar`, `MemberAvatars` stack, `MemberRow`; workspace header with share + avatars
+- [x] Logged-out invitees: `/join` → `/login?next=…` → back to join (internal-only redirect guard)
+- **Done:** second account opens invite link → joins (blocked at 4) → appears with a role; owners/admins manage roles & remove; build green.
+- **⚠️ Manual step (you):** run `supabase/migrations/0004_invites.sql` in the Supabase SQL editor.
 
-### Phase 4 — Editor + Real-Time Core  → *Real-Time Editing, Live Cursors, Presence, Syntax Highlighting, Multiple Languages*
+### Phase 4 — Editor + Real-Time Core  ⏭️ **NEXT**  → *Real-Time Editing, Live Cursors, Presence, Syntax Highlighting, Multiple Languages*
 - [ ] Liveblocks setup: `liveblocks.config.ts`, `RoomProvider`, auth endpoint (`@liveblocks/node`)
 - [ ] Monaco editor component; bind Yjs doc via `@liveblocks/yjs` + `y-monaco`
 - [ ] Presence: avatars of who's online; live remote cursors + selections
