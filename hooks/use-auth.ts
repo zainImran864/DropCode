@@ -16,7 +16,7 @@ export function useAuth() {
   const reset = useUserStore((s) => s.reset);
   const [isPending, setPending] = useState(false);
 
-  async function login(values: LoginInput) {
+  async function login(values: LoginInput, next?: string) {
     setPending(true);
     const { error } = await authApi.signInWithPassword(values);
     setPending(false);
@@ -26,7 +26,8 @@ export function useAuth() {
       return;
     }
     toast.success("Welcome back!");
-    router.push("/dashboard");
+    // Only allow internal redirects.
+    router.push(next && next.startsWith("/") ? next : "/dashboard");
     router.refresh();
   }
 

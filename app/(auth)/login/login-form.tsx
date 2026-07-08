@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { FormField } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
 
-export function LoginForm() {
+export function LoginForm({ next }: { next?: string }) {
   const { login, isPending } = useAuth();
   const {
     register,
@@ -16,7 +16,10 @@ export function LoginForm() {
   } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) });
 
   return (
-    <form onSubmit={handleSubmit(login)} className="flex flex-col gap-4">
+    <form
+      onSubmit={handleSubmit((values) => login(values, next))}
+      className="flex flex-col gap-4"
+    >
       <FormField
         id="email"
         type="email"

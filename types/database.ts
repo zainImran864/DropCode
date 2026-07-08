@@ -75,3 +75,20 @@ export interface ChartPoint {
   label: string;
   value: number;
 }
+
+/** A workspace member joined with their profile, for member lists/avatars. */
+export interface MemberWithProfile {
+  user_id: string;
+  role: Role;
+  joined_at: string;
+  display_name: string | null;
+  avatar_url: string | null;
+}
+
+/** Public preview of a workspace shown on the join page (pre-membership). */
+export interface WorkspacePreview {
+  id: string;
+  name: string;
+  language: string;
+  member_count: number;
+}
