@@ -174,8 +174,6 @@ Each phase is shippable and testable on its own.
 - **Done:** two browsers in the same workspace see each other's text, cursors, and presence live; viewers are read-only; build green. **Liveblocks key is set in `.env`.**
 
 ### Phase 5 — Files & Persistence  ⏭️ **NEXT**  → *File Explorer, Save Code, Auto Save, Export Code*
-
-### Phase 5 — Files & Persistence  → *File Explorer, Save Code, Auto Save, Export Code*
 - [ ] File explorer sidebar (create / rename / delete files, tree view) → `files` table
 - [ ] Save snapshot to Postgres (manual **Save** + debounced **Auto Save**)
 - [ ] Export: download single file or whole workspace as `.zip`
