@@ -1,7 +1,7 @@
 "use server";
 
 import { requireUser } from "@/lib/auth";
-import { runCode } from "@/lib/piston";
+import { runCode } from "@/lib/code-runner";
 import type { RunResult } from "@/types/run";
 import type { ActionResult } from "./actions";
 
