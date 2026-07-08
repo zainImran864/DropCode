@@ -56,3 +56,22 @@ export interface Version {
 
 /** Max members allowed per workspace — enforced in API + DB trigger. */
 export const MAX_WORKSPACE_MEMBERS = 4;
+
+/** A workspace enriched with its member count, as shown on the dashboard. */
+export interface WorkspaceListItem extends Workspace {
+  member_count: number;
+}
+
+/** Aggregate numbers for the dashboard stat cards. */
+export interface DashboardStats {
+  workspaceCount: number;
+  ownedCount: number;
+  memberSeats: number; // total members across all your workspaces
+  languageCount: number;
+}
+
+/** Generic {label, value} point for reusable charts. */
+export interface ChartPoint {
+  label: string;
+  value: number;
+}
