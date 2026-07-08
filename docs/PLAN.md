@@ -222,23 +222,46 @@ Each phase is shippable and testable on its own.
 
 ---
 
-## 6. Suggested Folder Structure
+## 6. Folder Structure & Architecture Convention
+
+**Layering (strict, one direction of dependency):**
+`types → api → hooks → store → page`
+
+- **`types/`** — pure TypeScript types/interfaces. No imports from other layers.
+- **`api/`** — data-access functions (Supabase queries, Piston calls). No React, no state. Returns typed data.
+- **`store/`** — Zustand stores holding client state.
+- **`hooks/`** — React hooks that bridge `api`/Supabase realtime into `store` for components.
+- **pages/components** — consume hooks + store only; never call the DB directly.
+
+**Every page gets its own folder** under `app/` (App Router convention), with
+page-specific components colocated inside that folder. Shared, cross-page
+components live under `components/`.
+
 ```
 app/
-  (auth)/login, /register
-  auth/callback                # Supabase OAuth/email confirm callback
-  (app)/dashboard
-  (app)/workspace/[id]         # editor room
-  join/[token]
+  page.tsx                     # "/" landing
+  (auth)/
+    login/page.tsx             # each page = its own folder
+    register/page.tsx
+  auth/callback/route.ts       # Supabase OAuth/email confirm callback
+  (app)/
+    dashboard/page.tsx
+    workspace/[id]/page.tsx    # editor room (+ colocated components)
+  join/[token]/page.tsx
   api/
-    liveblocks-auth            # room authorization (checks workspace_members)
-    run                        # Piston proxy
-middleware.ts                  # Supabase session refresh + route protection
+    liveblocks-auth/route.ts   # room authorization (checks workspace_members)
+    run/route.ts               # Piston proxy
+proxy.ts                       # (Next 16: was middleware.ts) session refresh + route protection
+types/          database.ts    # domain types
+api/            profile.ts …   # data-access layer
+store/          user-store.ts …# zustand
+hooks/          use-user.ts …  # react bindings
 components/
+  providers.tsx  theme-toggle.tsx
   editor/  explorer/  chat/  voice/  presence/  ui/
 lib/
-  supabase/client.ts  supabase/server.ts   # browser + server clients
-  env.ts  liveblocks.ts  piston.ts  permissions.ts
+  env.ts  supabase/client.ts  supabase/server.ts
+  liveblocks.ts  piston.ts  permissions.ts
 supabase/
   migrations/                  # SQL: tables, RLS policies, triggers
 ```
