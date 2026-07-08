@@ -23,27 +23,45 @@ export async function runCode(
 /* -------------------------------- Wandbox -------------------------------- */
 
 const WANDBOX_URL = "https://wandbox.org/api/compile.json";
+const WANDBOX_LIST_URL = "https://wandbox.org/api/list.json";
 
-// DropCode language value -> Wandbox compiler id.
-const WANDBOX_COMPILER: Record<string, string> = {
-  javascript: "nodejs-head",
-  typescript: "typescript-head",
-  python: "cpython-head",
-  c: "gcc-head",
-  cpp: "gcc-head",
-  java: "openjdk-head",
-  go: "go-head",
-  rust: "rust-head",
-  ruby: "ruby-head",
-  php: "php-head",
+// DropCode language value -> Wandbox `language` label (as in list.json).
+const WANDBOX_LANGUAGE: Record<string, string> = {
+  javascript: "JavaScript",
+  typescript: "TypeScript",
+  python: "Python",
+  c: "C",
+  cpp: "C++",
+  java: "Java",
+  go: "Go",
+  rust: "Rust",
+  ruby: "Ruby",
+  php: "PHP",
 };
+
+interface WandboxCompiler {
+  name: string;
+  language: string;
+}
+let wandboxList: WandboxCompiler[] | null = null;
+
+/** Resolve a real Wandbox compiler id for a language from its live list. */
+async function wandboxCompilerFor(language: string): Promise<string | null> {
+  const label = WANDBOX_LANGUAGE[language];
+  if (!label) return null;
+  if (!wandboxList) {
+    const r = await fetch(WANDBOX_LIST_URL);
+    wandboxList = r.ok ? ((await r.json()) as WandboxCompiler[]) : [];
+  }
+  return wandboxList.find((c) => c.language === label)?.name ?? null;
+}
 
 async function runViaWandbox(
   language: string,
   source: string,
   stdin: string,
 ): Promise<RunResult> {
-  const compiler = WANDBOX_COMPILER[language];
+  const compiler = await wandboxCompilerFor(language);
   if (!compiler) {
     return {
       language,
