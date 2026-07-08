@@ -99,7 +99,10 @@ drop policy if exists "members can view workspace" on public.workspaces;
 create policy "members can view workspace"
   on public.workspaces for select
   to authenticated
-  using (public.is_workspace_member(id));
+  using (
+    owner_id = auth.uid()
+    or public.is_workspace_member(id)
+  );
 
 drop policy if exists "users can create workspaces" on public.workspaces;
 create policy "users can create workspaces"

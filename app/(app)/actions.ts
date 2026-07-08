@@ -19,13 +19,13 @@ export async function createWorkspaceAction(
     return { ok: false, error: "Please check the form and try again." };
   }
 
-  const created = await workspacesApi.createWorkspace(parsed.data, user.id);
-  if (!created) {
-    return { ok: false, error: "Could not create workspace." };
+  const result = await workspacesApi.createWorkspace(parsed.data, user.id);
+  if ("error" in result) {
+    return { ok: false, error: result.error };
   }
 
   revalidatePath("/dashboard");
-  return { ok: true, data: created };
+  return { ok: true, data: result };
 }
 
 export async function deleteWorkspaceAction(
@@ -33,9 +33,9 @@ export async function deleteWorkspaceAction(
 ): Promise<ActionResult> {
   await requireUser();
 
-  const success = await workspacesApi.deleteWorkspace(id);
-  if (!success) {
-    return { ok: false, error: "Could not delete workspace." };
+  const result = await workspacesApi.deleteWorkspace(id);
+  if ("error" in result) {
+    return { ok: false, error: result.error };
   }
 
   revalidatePath("/dashboard");

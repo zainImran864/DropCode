@@ -48,7 +48,7 @@ export async function getWorkspaceById(id: string): Promise<Workspace | null> {
 export async function createWorkspace(
   input: CreateWorkspaceInput,
   ownerId: string,
-): Promise<{ id: string } | null> {
+): Promise<{ id: string } | { error: string }> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("workspaces")
@@ -56,14 +56,17 @@ export async function createWorkspace(
     .select("id")
     .single();
 
-  if (error || !data) return null;
+  if (error) return { error: error.message };
+  if (!data) return { error: "Workspace was created but could not be read back." };
   return { id: data.id };
 }
 
-export async function deleteWorkspace(id: string): Promise<boolean> {
+export async function deleteWorkspace(
+  id: string,
+): Promise<{ ok: true } | { error: string }> {
   const supabase = await createClient();
   const { error } = await supabase.from("workspaces").delete().eq("id", id);
-  return !error;
+  return error ? { error: error.message } : { ok: true };
 }
 
 /** Derive dashboard stat-card numbers + chart series from the workspace list. */
