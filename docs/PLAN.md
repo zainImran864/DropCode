@@ -120,23 +120,31 @@ when the workspace already has 4 members (defense-in-depth alongside the join AP
 
 Each phase is shippable and testable on its own.
 
-### Phase 0 — Foundation & cleanup  ✅ *(scaffold already exists)*
-- [ ] Remove redundant deps (§1), add new deps (§1)
-- [ ] Env vars (§2); create `lib/env.ts` (Zod-validated env)
-- [ ] Supabase clients: `lib/supabase/client.ts` (browser), `lib/supabase/server.ts` (server, `@supabase/ssr` cookies), `middleware.ts` (session refresh)
-- [ ] Run first SQL migration: `profiles` table + `handle_new_user` trigger + RLS
-- [ ] Base UI: theme provider (`next-themes`), Sonner toaster, layout shell
-- [ ] Wipe boilerplate `page.tsx` → landing page
-- **Done when:** app boots, Supabase client connects, dark/light toggle works.
+**Progress:** ✅ Phase 0 done · ✅ Phase 1 done · ⏭️ **Phase 2 is next**
 
-### Phase 1 — Auth & Login  → *Feature: Login*
-- [ ] Supabase Auth: email/password sign-up + login (RHF + Zod), optional Google OAuth
-- [ ] Auth callback route (`app/auth/callback`), email confirmation flow
-- [ ] `getUser()` server helper; protect routes via `middleware.ts` + server checks
-- [ ] Sign-out; auto-create `profiles` row on signup (DB trigger)
-- **Done when:** user can sign up, log in, log out; sessions persist across reloads.
+### Phase 0 — Foundation & cleanup  ✅ **DONE**
+- [x] Remove redundant deps (§1), add new deps (§1) — also added `zustand`
+- [x] Env vars (§2); `lib/env.ts` (Zod-validated, public/server split) — added `NEXT_PUBLIC_SITE_URL`
+- [x] Supabase clients: `lib/supabase/client.ts` + `server.ts`; **`proxy.ts`** (Next 16 renamed `middleware`) for session refresh
+- [x] First SQL migration applied: `profiles` + `handle_new_user` trigger + RLS (verified reachable)
+- [x] Base UI: `components/providers.tsx` (next-themes + Sonner + user sync), class-based dark mode, `ThemeToggle`
+- [x] Wiped boilerplate `page.tsx` → landing page
+- [x] Established layering (`types → api → hooks → store → page`) + per-page folders
+- **Done:** app boots, Supabase connects, dark/light toggle works, `bun run build` green.
 
-### Phase 2 — Workspaces  → *Create Workspace, Owner/Admin Permissions*
+### Phase 1 — Auth & Login  ✅ **DONE**  → *Feature: Login*
+- [x] Supabase email/password sign-up + login (RHF + Zod via `lib/validations/auth.ts`)
+- [x] Auth callback route `app/auth/callback/route.ts` (exchanges `code` for session; email-confirm + future OAuth)
+- [x] `lib/auth.ts` `getUser()` / `requireUser()` server helpers; route protection in `proxy.ts` **and** `(app)/layout.tsx`
+- [x] Sign-out (`LogoutButton`); profile auto-created on signup via DB trigger
+- [x] Reusable UI kit: `Button`, `Input`, `Label`, `Card`, `FormField` + `lib/utils.ts` `cn()`
+- [x] Protected `dashboard` page showing the signed-in user
+- **Done:** sign up → confirm → log in → dashboard → log out; sessions persist; build green.
+- **⚠️ Manual setup required (you):** in Supabase → Auth → URL Configuration, add
+  `http://localhost:3000` + `https://drop-code-liart.vercel.app` to Site URL & Redirect URLs.
+  Set `NEXT_PUBLIC_SITE_URL` per environment. Rotate the DB password (was shared in chat).
+
+### Phase 2 — Workspaces  ⏭️ **NEXT**  → *Create Workspace, Owner/Admin Permissions*
 - [ ] Migration: `workspaces` + `workspace_members` tables, RLS policies, `is_member()` helper, max-4 trigger
 - [ ] Server actions / route handlers: create / list / get / delete workspace
 - [ ] Dashboard: list my workspaces, "New Workspace" dialog (pick language)
