@@ -23,7 +23,10 @@ export function JoinCard({
   function join() {
     startTransition(async () => {
       const res = await joinWorkspaceAction(token);
-      if (!res.ok) return toast.error(res.error);
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
       toast.success("Joined workspace");
       router.push(`/workspace/${res.data.workspaceId}`);
     });

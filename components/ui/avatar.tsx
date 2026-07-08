@@ -19,8 +19,8 @@ interface AvatarProps {
 export function Avatar({ name, src, className }: AvatarProps) {
   const base = "h-8 w-8 shrink-0 rounded-full";
   if (src) {
-    // eslint-disable-next-line @next/next/no-img-element
     return (
+      // eslint-disable-next-line @next/next/no-img-element -- external avatar URLs, no next/image loader configured
       <img
         src={src}
         alt={name ?? "avatar"}

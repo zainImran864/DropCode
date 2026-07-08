@@ -19,7 +19,10 @@ export function useMemberActions(workspaceId: string) {
   function updateRole(userId: string, role: Role) {
     startTransition(async () => {
       const res = await updateMemberRoleAction(workspaceId, userId, role);
-      if (!res.ok) return toast.error(res.error);
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
       toast.success("Role updated");
       router.refresh();
     });
@@ -28,7 +31,10 @@ export function useMemberActions(workspaceId: string) {
   function removeMember(userId: string) {
     startTransition(async () => {
       const res = await removeMemberAction(workspaceId, userId);
-      if (!res.ok) return toast.error(res.error);
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
       toast.success("Member removed");
       router.refresh();
     });
@@ -37,7 +43,10 @@ export function useMemberActions(workspaceId: string) {
   function leave() {
     startTransition(async () => {
       const res = await leaveWorkspaceAction(workspaceId);
-      if (!res.ok) return toast.error(res.error);
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
       toast.success("You left the workspace");
       router.push("/dashboard");
       router.refresh();
@@ -47,7 +56,10 @@ export function useMemberActions(workspaceId: string) {
   function resetToken(onDone?: (token: string) => void) {
     startTransition(async () => {
       const res = await resetInviteTokenAction(workspaceId);
-      if (!res.ok) return toast.error(res.error);
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
       toast.success("Invite link reset");
       onDone?.(res.data.token);
       router.refresh();
