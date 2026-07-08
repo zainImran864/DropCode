@@ -1,14 +1,20 @@
 import Link from "next/link";
+import { LoginForm } from "./login-form";
 
-// Placeholder — full Supabase email/password + OAuth login lands in Phase 1.
 export default function LoginPage() {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
-      <h1 className="text-2xl font-semibold">Log in</h1>
-      <p className="text-zinc-600 dark:text-zinc-400">Coming in Phase 1.</p>
-      <Link href="/" className="text-sm underline">
-        ← Back home
-      </Link>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-xl font-semibold">Welcome back</h1>
+        <p className="text-sm text-zinc-500">Log in to your DropCode account.</p>
+      </div>
+      <LoginForm />
+      <p className="text-center text-sm text-zinc-500">
+        No account?{" "}
+        <Link href="/register" className="font-medium underline">
+          Create one
+        </Link>
+      </p>
     </div>
   );
 }

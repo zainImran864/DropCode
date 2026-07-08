@@ -1,14 +1,22 @@
 import Link from "next/link";
+import { RegisterForm } from "./register-form";
 
-// Placeholder — full Supabase sign-up lands in Phase 1.
 export default function RegisterPage() {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
-      <h1 className="text-2xl font-semibold">Create your account</h1>
-      <p className="text-zinc-600 dark:text-zinc-400">Coming in Phase 1.</p>
-      <Link href="/" className="text-sm underline">
-        ← Back home
-      </Link>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-xl font-semibold">Create your account</h1>
+        <p className="text-sm text-zinc-500">
+          Start collaborating on code in seconds.
+        </p>
+      </div>
+      <RegisterForm />
+      <p className="text-center text-sm text-zinc-500">
+        Already have an account?{" "}
+        <Link href="/login" className="font-medium underline">
+          Log in
+        </Link>
+      </p>
     </div>
   );
 }

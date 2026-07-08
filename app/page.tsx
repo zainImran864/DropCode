@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { buttonClasses } from "@/components/ui/button";
 
 export default function Home() {
   return (
@@ -21,16 +22,10 @@ export default function Home() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link
-            href="/register"
-            className="rounded-md bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
-          >
+          <Link href="/register" className={buttonClasses()}>
             Get started
           </Link>
-          <Link
-            href="/login"
-            className="rounded-md border border-zinc-300 px-5 py-2.5 text-sm font-medium transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900"
-          >
+          <Link href="/login" className={buttonClasses({ variant: "outline" })}>
             Log in
           </Link>
         </div>

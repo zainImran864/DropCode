@@ -32,9 +32,39 @@ export async function proxy(request: NextRequest) {
 
   // IMPORTANT: refreshes the session. Do not add logic between client creation
   // and this call.
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { pathname } = request.nextUrl;
+  const isProtected =
+    pathname.startsWith("/dashboard") || pathname.startsWith("/workspace");
+  const isAuthPage =
+    pathname.startsWith("/login") || pathname.startsWith("/register");
+
+  // Signed-out users can't reach protected routes.
+  if (!user && isProtected) {
+    return redirectPreservingCookies(request, response, "/login");
+  }
+  // Signed-in users skip the auth pages.
+  if (user && isAuthPage) {
+    return redirectPreservingCookies(request, response, "/dashboard");
+  }
 
   return response;
+}
+
+/** Redirect while carrying over the refreshed Supabase auth cookies. */
+function redirectPreservingCookies(
+  request: NextRequest,
+  response: NextResponse,
+  pathname: string,
+) {
+  const url = request.nextUrl.clone();
+  url.pathname = pathname;
+  const redirect = NextResponse.redirect(url);
+  response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+  return redirect;
 }
 
 export const config = {
