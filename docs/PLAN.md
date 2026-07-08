@@ -120,7 +120,7 @@ when the workspace already has 4 members (defense-in-depth alongside the join AP
 
 Each phase is shippable and testable on its own.
 
-**Progress:** ✅ Phase 0 · ✅ Phase 1 · ✅ Phase 2 · ✅ Phase 3 · ✅ Phase 4 · ⏭️ **Phase 5 is next**
+**Progress:** ✅ Phase 0 · ✅ Phase 1 · ✅ Phase 2 · ✅ Phase 3 · ✅ Phase 4 · ✅ Phase 5 · ⏭️ **Phase 6 is next**
 
 ### Phase 0 — Foundation & cleanup  ✅ **DONE**
 - [x] Remove redundant deps (§1), add new deps (§1) — also added `zustand`
@@ -173,12 +173,21 @@ Each phase is shippable and testable on its own.
 - [x] Graceful `LiveblocksSetupNotice` when `LIVEBLOCKS_SECRET_KEY` is absent; full-height editor layout + `EditorSkeleton`
 - **Done:** two browsers in the same workspace see each other's text, cursors, and presence live; viewers are read-only; build green. **Liveblocks key is set in `.env`.**
 
-### Phase 5 — Files & Persistence  ⏭️ **NEXT**  → *File Explorer, Save Code, Auto Save, Export Code*
-- [ ] File explorer sidebar (create / rename / delete files, tree view) → `files` table
-- [ ] Save snapshot to Postgres (manual **Save** + debounced **Auto Save**)
-- [ ] Export: download single file or whole workspace as `.zip`
-- [ ] (Optional) large assets/attachments → Supabase Storage bucket
-- **Done when:** files persist across reloads; auto-save writes snapshots; export downloads.
+### Phase 5 — Files & Persistence  ✅ **DONE**  → *File Explorer, Save Code, Auto Save, Export Code*
+- [x] Migration `0005_files.sql`: `files` table + RLS (members read; editors+ write; viewers read-only)
+- [x] File explorer sidebar (create / rename inline / delete), per-file Yjs text (`file:<id>`); active-file `file-store`
+- [x] Save snapshot to Postgres — manual **Save** + debounced **Auto-Save** (author-only writes) via `editor-store` + `saveFileAction`
+- [x] Export current file (download) + whole workspace as `.zip` (jszip) via `ExportMenu`
+- [x] Reusable additions: `DropdownMenu`; editor `EditorToolbar` (save status), `EmptyEditorState`
+- **Done:** files persist, auto-save writes snapshots, export downloads; build green.
+- **⚠️ Manual step (you):** run `supabase/migrations/0005_files.sql` in the Supabase SQL editor.
+
+#### Production fixes shipped alongside Phase 5
+- 🐛 **Fixed workspace-page 500** on Vercel: `y-monaco` imports `monaco-editor` (browser globals at load) and crashed SSR of the client tree → now the editor is loaded via `next/dynamic({ ssr: false })`.
+- 🐛 **Fixed `reset_invite_token`**: `gen_random_bytes()` isn't resolvable under the function's empty `search_path`; switched to `gen_random_uuid()` (`0006_fix_reset_token.sql`).
+- **⚠️ To clear the deployed 500:** commit + push these changes, run migrations `0005`/`0006`, and ensure Vercel env has the same keys as `.env`.
+
+### Phase 6 — Run Code  ⏭️ **NEXT**  → *Run Code*
 
 ### Phase 6 — Run Code  → *Run Code*
 - [ ] `POST /api/run` → Piston (`runCode(language, source, stdin)` interface)
