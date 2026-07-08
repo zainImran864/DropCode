@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { FiArrowLeft } from "react-icons/fi";
 import { getWorkspaceById } from "@/api/workspaces";
 import { getWorkspaceMembers } from "@/api/members";
+import { getFiles } from "@/api/files";
 import { requireUser } from "@/lib/auth";
 import { publicEnv, serverEnv } from "@/lib/env";
 import { buttonClasses } from "@/components/ui/button";
@@ -26,8 +27,10 @@ export default async function WorkspacePage({
   const members = await getWorkspaceMembers(id);
   const myRole = members.find((m) => m.user_id === user.id)?.role ?? null;
   const canManage = myRole === "owner" || myRole === "admin";
+  const canEdit = myRole === "owner" || myRole === "admin" || myRole === "editor";
   const readOnly = myRole === "viewer";
   const liveblocksEnabled = Boolean(serverEnv().LIVEBLOCKS_SECRET_KEY);
+  const files = liveblocksEnabled ? await getFiles(id) : [];
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-zinc-50 dark:bg-black">
@@ -65,7 +68,10 @@ export default async function WorkspacePage({
       {liveblocksEnabled ? (
         <EditorPane
           workspaceId={workspace.id}
-          language={workspace.language}
+          workspaceName={workspace.name}
+          files={files}
+          fallbackLanguage={workspace.language}
+          canEdit={canEdit}
           readOnly={readOnly}
         />
       ) : (

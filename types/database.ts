@@ -37,12 +37,15 @@ export interface WorkspaceMember {
 export interface FileRow {
   id: string;
   workspace_id: string;
-  path: string;
   name: string;
   language: string;
   content: string;
+  created_at: string;
   updated_at: string;
 }
+
+/** File without its content — used for the explorer list. */
+export type FileMeta = Omit<FileRow, "content">;
 
 export interface Version {
   id: string;

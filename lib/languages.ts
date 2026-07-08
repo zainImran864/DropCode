@@ -29,3 +29,29 @@ export function getLanguage(value: string): LanguageOption | undefined {
 export function languageLabel(value: string): string {
   return getLanguage(value)?.label ?? value;
 }
+
+const EXTENSION_MAP: Record<string, string> = {
+  js: "javascript",
+  jsx: "javascript",
+  mjs: "javascript",
+  cjs: "javascript",
+  ts: "typescript",
+  tsx: "typescript",
+  py: "python",
+  java: "java",
+  cpp: "cpp",
+  cc: "cpp",
+  cxx: "cpp",
+  c: "c",
+  h: "c",
+  go: "go",
+  rs: "rust",
+  rb: "ruby",
+  php: "php",
+};
+
+/** Infer a language from a filename extension, or null if unknown. */
+export function languageFromFilename(name: string): string | null {
+  const ext = name.split(".").pop()?.toLowerCase() ?? "";
+  return EXTENSION_MAP[ext] ?? null;
+}

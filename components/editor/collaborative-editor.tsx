@@ -1,28 +1,42 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 import type { editor } from "monaco-editor";
+import * as Y from "yjs";
 import { getYjsProviderForRoom } from "@liveblocks/yjs";
 import { MonacoBinding } from "y-monaco";
 import type { Awareness } from "y-protocols/awareness";
 import { useRoom, useSelf } from "@liveblocks/react/suspense";
 import { useTheme } from "next-themes";
+import { toast } from "sonner";
 import { getLanguage } from "@/lib/languages";
+import { saveFileAction } from "@/app/(app)/file-actions";
+import { useEditorStore } from "@/store/editor-store";
 import { EditorSkeleton } from "./editor-skeleton";
 
+const AUTOSAVE_MS = 1500;
+
 interface Props {
+  fileId: string;
   language: string;
   readOnly: boolean;
 }
 
-/** Monaco bound to the room's shared Yjs document, with live remote cursors. */
-export function CollaborativeEditor({ language, readOnly }: Props) {
+/** Monaco bound to the file's shared Yjs text, with live cursors + auto-save. */
+export function CollaborativeEditor({ fileId, language, readOnly }: Props) {
   const room = useRoom();
   const { resolvedTheme } = useTheme();
   const userInfo = useSelf((me) => me.info);
   const [editorRef, setEditorRef] =
     useState<editor.IStandaloneCodeEditor | null>(null);
+
+  const setSaveState = useEditorStore((s) => s.setSaveState);
+  const setSave = useEditorStore((s) => s.setSave);
+  const setGetContent = useEditorStore((s) => s.setGetContent);
+
+  const lastSavedRef = useRef("");
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!editorRef) return;
@@ -30,9 +44,8 @@ export function CollaborativeEditor({ language, readOnly }: Props) {
     if (!model) return;
 
     const yProvider = getYjsProviderForRoom(room);
-    const yText = yProvider.getYDoc().getText("monaco");
+    const yText = yProvider.getYDoc().getText(`file:${fileId}`);
 
-    // Awareness "user" powers y-monaco's remote cursor/selection styling.
     yProvider.awareness.setLocalStateField("user", {
       name: userInfo?.name ?? "Anonymous",
       color: userInfo?.color ?? "#6366f1",
@@ -42,12 +55,65 @@ export function CollaborativeEditor({ language, readOnly }: Props) {
       yText,
       model,
       new Set([editorRef]),
-      // Liveblocks' Awareness is runtime-compatible with y-protocols' type.
       yProvider.awareness as unknown as Awareness,
     );
 
-    return () => binding.destroy();
-  }, [editorRef, room, userInfo]);
+    lastSavedRef.current = yText.toString();
+    setSaveState("saved");
+
+    const doSave = async () => {
+      const content = yText.toString();
+      if (content === lastSavedRef.current) {
+        setSaveState("saved");
+        return;
+      }
+      setSaveState("saving");
+      const res = await saveFileAction(fileId, content);
+      if (res.ok) {
+        lastSavedRef.current = content;
+        setSaveState("saved");
+      } else {
+        setSaveState("unsaved");
+        toast.error(res.error);
+      }
+    };
+
+    setGetContent(() => yText.toString());
+    setSave(() => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      void doSave();
+    });
+
+    const observer = (_e: Y.YTextEvent, transaction: Y.Transaction) => {
+      if (yText.toString() === lastSavedRef.current) {
+        setSaveState("saved");
+        return;
+      }
+      setSaveState("unsaved");
+      // Only the client that made the edit schedules the auto-save.
+      if (!transaction.local || readOnly) return;
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => void doSave(), AUTOSAVE_MS);
+    };
+    yText.observe(observer);
+
+    return () => {
+      yText.unobserve(observer);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      binding.destroy();
+      setSave(null);
+      setGetContent(null);
+    };
+  }, [
+    editorRef,
+    room,
+    fileId,
+    readOnly,
+    userInfo,
+    setSaveState,
+    setSave,
+    setGetContent,
+  ]);
 
   const monacoLanguage = getLanguage(language)?.monaco ?? language;
 
