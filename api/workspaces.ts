@@ -32,6 +32,19 @@ export async function getWorkspaces(): Promise<WorkspaceListItem[]> {
   });
 }
 
+/** A single workspace by id (RLS returns null if you're not a member). */
+export async function getWorkspaceById(id: string): Promise<Workspace | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("workspaces")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !data) return null;
+  return data as Workspace;
+}
+
 export async function createWorkspace(
   input: CreateWorkspaceInput,
   ownerId: string,

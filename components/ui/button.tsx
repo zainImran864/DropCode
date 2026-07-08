@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
 export type ButtonVariant = "primary" | "outline" | "ghost";
@@ -36,13 +37,14 @@ export interface ButtonProps
   size?: ButtonSize;
 }
 
-export function Button({
-  variant,
-  size,
-  className,
-  ...props
-}: ButtonProps) {
-  return (
-    <button className={buttonClasses({ variant, size, className })} {...props} />
-  );
-}
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  function Button({ variant, size, className, ...props }, ref) {
+    return (
+      <button
+        ref={ref}
+        className={buttonClasses({ variant, size, className })}
+        {...props}
+      />
+    );
+  },
+);
