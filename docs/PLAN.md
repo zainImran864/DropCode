@@ -183,9 +183,10 @@ Each phase is shippable and testable on its own.
 - **⚠️ Manual step (you):** run `supabase/migrations/0005_files.sql` in the Supabase SQL editor.
 
 #### Production fixes shipped alongside Phase 5
-- 🐛 **Fixed workspace-page 500** on Vercel: `y-monaco` imports `monaco-editor` (browser globals at load) and crashed SSR of the client tree → now the editor is loaded via `next/dynamic({ ssr: false })`.
+- 🐛 **ROOT CAUSE of the deployed 500 → Vercel build was failing.** `y-monaco` imports `y-protocols/awareness`, but `y-protocols` was only a hoisted transitive dep (present locally, unresolved on Vercel's clean install). Added it as a **direct dependency**. Prod was frozen on an old build until this.
+- 🐛 Editor loaded via `next/dynamic({ ssr: false })` (avoids monaco browser-globals during SSR) + resilient `lib/env.ts` (blank/invalid host env vars can't crash a render) + `(app)/error.tsx` boundary.
 - 🐛 **Fixed `reset_invite_token`**: `gen_random_bytes()` isn't resolvable under the function's empty `search_path`; switched to `gen_random_uuid()` (`0006_fix_reset_token.sql`).
-- **⚠️ To clear the deployed 500:** commit + push these changes, run migrations `0005`/`0006`, and ensure Vercel env has the same keys as `.env`.
+- **⚠️ To clear the deployed 500:** commit + push (Vercel build will now succeed), run migrations `0005`/`0006`.
 
 ### Phase 6 — Run Code  ⏭️ **NEXT**  → *Run Code*
 
