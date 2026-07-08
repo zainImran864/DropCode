@@ -120,7 +120,7 @@ when the workspace already has 4 members (defense-in-depth alongside the join AP
 
 Each phase is shippable and testable on its own.
 
-**Progress:** ✅ Phase 0 · ✅ Phase 1 · ✅ Phase 2 · ✅ Phase 3 · ✅ Phase 4 · ✅ Phase 5 · ⏭️ **Phase 6 is next**
+**Progress:** ✅ Phase 0–7 done · ⏭️ **Phase 8 (Voice Call) is next**
 
 ### Phase 0 — Foundation & cleanup  ✅ **DONE**
 - [x] Remove redundant deps (§1), add new deps (§1) — also added `zustand`
@@ -188,18 +188,19 @@ Each phase is shippable and testable on its own.
 - 🐛 **Fixed `reset_invite_token`**: `gen_random_bytes()` isn't resolvable under the function's empty `search_path`; switched to `gen_random_uuid()` (`0006_fix_reset_token.sql`).
 - **⚠️ To clear the deployed 500:** commit + push (Vercel build will now succeed), run migrations `0005`/`0006`.
 
-### Phase 6 — Run Code  ⏭️ **NEXT**  → *Run Code*
+### Phase 6 — Run Code  ✅ **DONE**  → *Run Code*
+- [x] `runCode(language, source, stdin)` interface (`lib/code-runner.ts`) + `runCodeAction`
+- [x] Output/console panel (`OutputPanel`): stdout, stderr, compile output, exit code; `run-store` + `use-run`
+- [x] Run button in the editor toolbar (runs active file's live content)
+- [x] Language mapping (`lib/languages.ts`: Monaco / Piston / Wandbox)
+- ⚠️ **Engine change:** public Piston (`emkc.org`) became **whitelist-only (401) on 2/15/2026**. Default runner is now **Wandbox** (free, no key). Set `PISTON_URL` to a **self-hosted Piston** to use Piston instead.
+- **Done:** clicking Run executes the current file and shows output; build green.
 
-### Phase 6 — Run Code  → *Run Code*
-- [ ] `POST /api/run` → Piston (`runCode(language, source, stdin)` interface)
-- [ ] Output/console panel (stdout, stderr, exit code, time)
-- [ ] Language/version mapping table (Monaco ↔ Piston)
-- **Done when:** clicking Run executes current file and streams output to the panel.
-
-### Phase 7 — Chat & Presence UX  → *Chat Sidebar*
-- [ ] Chat sidebar using Liveblocks broadcast (optionally persist to Mongo)
-- [ ] Typing indicators, unread badge
-- **Done when:** members chat in real time inside the workspace.
+### Phase 7 — Chat & Presence UX  ✅ **DONE**  → *Chat Sidebar*
+- [x] Chat sidebar using **Liveblocks Storage** (`LiveList<ChatMessage>`) — real-time + persists in the room, no DB
+- [x] Typing indicators (Liveblocks Presence `typing`) + unread badge on the toolbar toggle (`chat-store`)
+- [x] Reusable `Avatar`-based message rows; open/close from the editor toolbar
+- **Done:** members chat in real time inside the workspace; build green.
 
 ### Phase 8 — Voice Call (optional)  → *Voice Call*
 - [ ] WebRTC mesh (≤4 peers), audio only
