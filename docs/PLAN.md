@@ -120,7 +120,7 @@ when the workspace already has 4 members (defense-in-depth alongside the join AP
 
 Each phase is shippable and testable on its own.
 
-**Progress:** ✅ Phase 0 · ✅ Phase 1 · ✅ Phase 2 · ✅ Phase 3 · ⏭️ **Phase 4 is next**
+**Progress:** ✅ Phase 0 · ✅ Phase 1 · ✅ Phase 2 · ✅ Phase 3 · ✅ Phase 4 · ⏭️ **Phase 5 is next**
 
 ### Phase 0 — Foundation & cleanup  ✅ **DONE**
 - [x] Remove redundant deps (§1), add new deps (§1) — also added `zustand`
@@ -165,12 +165,15 @@ Each phase is shippable and testable on its own.
 - **Done:** second account opens invite link → joins (blocked at 4) → appears with a role; owners/admins manage roles & remove; build green.
 - **⚠️ Manual step (you):** run `supabase/migrations/0004_invites.sql` in the Supabase SQL editor.
 
-### Phase 4 — Editor + Real-Time Core  ⏭️ **NEXT**  → *Real-Time Editing, Live Cursors, Presence, Syntax Highlighting, Multiple Languages*
-- [ ] Liveblocks setup: `liveblocks.config.ts`, `RoomProvider`, auth endpoint (`@liveblocks/node`)
-- [ ] Monaco editor component; bind Yjs doc via `@liveblocks/yjs` + `y-monaco`
-- [ ] Presence: avatars of who's online; live remote cursors + selections
-- [ ] Language switcher → Monaco language + Piston language mapping
-- **Done when:** two browsers editing the same file see each other's text, cursors, and presence live.
+### Phase 4 — Editor + Real-Time Core  ✅ **DONE**  → *Real-Time Editing, Live Cursors, Presence, Syntax Highlighting, Multiple Languages*
+- [x] `liveblocks.config.ts` (typed UserMeta), `Room` provider, auth endpoint `/api/liveblocks-auth` (`@liveblocks/node`) — verifies `workspace_members`, **read-only grant for `viewer` role**
+- [x] `CollaborativeEditor`: Monaco (`@monaco-editor/react`) bound to room Yjs doc via `getYjsProviderForRoom` + `y-monaco`; theme synced to next-themes
+- [x] Presence: `PresenceAvatars` (who's online) + live remote cursors/selections via Yjs awareness
+- [x] `LanguageSwitcher` (owner/admin) → updates workspace language (Monaco + Piston mapping in `lib/languages.ts`)
+- [x] Graceful `LiveblocksSetupNotice` when `LIVEBLOCKS_SECRET_KEY` is absent; full-height editor layout + `EditorSkeleton`
+- **Done:** two browsers in the same workspace see each other's text, cursors, and presence live; viewers are read-only; build green. **Liveblocks key is set in `.env`.**
+
+### Phase 5 — Files & Persistence  ⏭️ **NEXT**  → *File Explorer, Save Code, Auto Save, Export Code*
 
 ### Phase 5 — Files & Persistence  → *File Explorer, Save Code, Auto Save, Export Code*
 - [ ] File explorer sidebar (create / rename / delete files, tree view) → `files` table
