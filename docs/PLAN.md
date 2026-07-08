@@ -193,7 +193,7 @@ Each phase is shippable and testable on its own.
 - [x] Output/console panel (`OutputPanel`): stdout, stderr, compile output, exit code; `run-store` + `use-run`
 - [x] Run button in the editor toolbar (runs active file's live content)
 - [x] Language mapping (`lib/languages.ts`: Monaco / Piston / Wandbox)
-- ⚠️ **Engine change:** public Piston (`emkc.org`) became **whitelist-only (401) on 2/15/2026**. Default runner is now **Wandbox** (free, no key). Set `PISTON_URL` to a **self-hosted Piston** to use Piston instead.
+- ⚠️ **Engine change:** public Piston (`emkc.org`) became **whitelist-only (401) on 2/15/2026**. Default runner is now **Wandbox** (free, no key) — it resolves a real compiler id from Wandbox's live `list.json` per language (no hardcoded ids). Set `PISTON_URL` to a **self-hosted Piston** to use Piston instead.
 - **Done:** clicking Run executes the current file and shows output; build green.
 
 ### Phase 7 — Chat & Presence UX  ✅ **DONE**  → *Chat Sidebar*
@@ -214,10 +214,11 @@ Each phase is shippable and testable on its own.
 - **Done when:** you can view past versions, restore one, and viewers can't edit.
 
 ### Phase 10 — Polish & Deploy
-- [ ] Empty states, loading skeletons, error boundaries, toasts
-- [ ] Rate-limit `/api/run`, sanitize inputs, secure Liveblocks auth per-room
-- [ ] Responsive layout, keyboard shortcuts, a11y pass
-- [ ] Deploy to Vercel; self-host Piston if public rate limits bite
+- [x] Redesigned **landing page** — hero with faux-editor preview, feature grid, gradient CTA (`components/landing/*`)
+- [x] Empty states, loading skeletons, error boundary (`(app)/error.tsx`), toasts
+- [ ] Rate-limit the run action, sanitize inputs, secure Liveblocks auth per-room
+- [ ] Responsive layout polish, keyboard shortcuts, a11y pass
+- [x] Deploying to Vercel (build fixed via `y-protocols` direct dep)
 - **Done when:** end-to-end demo works on a deployed URL.
 
 ---
