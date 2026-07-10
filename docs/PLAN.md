@@ -217,11 +217,15 @@ Each phase is shippable and testable on its own.
 - **Done:** save a version, see it in history, restore it live, and lock/unlock editing; build green.
 - **⚠️ Manual step (you):** run `supabase/migrations/0007_versions.sql` in the Supabase SQL editor.
 
-### Phase 10 — Polish & Deploy
+### Phase 10 — Polish & Deploy  🚧 **IN PROGRESS**
 - [x] Redesigned **landing page** — hero with faux-editor preview, feature grid, gradient CTA (`components/landing/*`)
+- [x] **Settings page** (`/settings`) — change display name, **profile picture** (Supabase Storage `avatars` bucket, `0008_avatars.sql`), and password
+- [x] **Workspaces page** (`/workspaces`) — full list + create (sidebar links now work)
+- [x] **Faster workspace open** — parallelized page queries (`Promise.all`) + route `loading.tsx` (no more full-page stall) + `(dashboard)/loading.tsx`
+- [x] **Keyboard shortcuts** — Ctrl/Cmd+S save, Ctrl/Cmd+Enter run
+- [x] **Rate-limit** the run action (15/min per user); source-size cap; version-dialog skeletons
 - [x] Empty states, loading skeletons, error boundary (`(app)/error.tsx`), toasts
-- [ ] Rate-limit the run action, sanitize inputs, secure Liveblocks auth per-room
-- [ ] Responsive layout polish, keyboard shortcuts, a11y pass
+- [ ] Further a11y pass, per-room Liveblocks hardening review
 - [x] Deploying to Vercel (build fixed via `y-protocols` direct dep)
 - **Done when:** end-to-end demo works on a deployed URL.
 
