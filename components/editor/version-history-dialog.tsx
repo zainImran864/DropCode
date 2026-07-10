@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { FiClock, FiRotateCcw } from "react-icons/fi";
 import {
@@ -30,17 +30,17 @@ export function VersionHistoryDialog({ workspaceId, fileId, canEdit }: Props) {
   const [message, setMessage] = useState("");
   const { save, restore, isPending } = useVersions(workspaceId, fileId);
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     const res = await listVersionsAction(fileId);
     setLoading(false);
     if (res.ok) setVersions(res.data);
-  }
+  }, [fileId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (open) load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, fileId]);
+  }, [open, load]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
