@@ -120,7 +120,7 @@ when the workspace already has 4 members (defense-in-depth alongside the join AP
 
 Each phase is shippable and testable on its own.
 
-**Progress:** ✅ Phase 0–7 done · ⏭️ **Phase 8 (Voice Call) is next**
+**Progress:** ✅ Phase 0–7 · ✅ Phase 9 · ⏸️ Phase 8 (Voice, optional) deferred · ⏭️ **Phase 10 polish**
 
 ### Phase 0 — Foundation & cleanup  ✅ **DONE**
 - [x] Remove redundant deps (§1), add new deps (§1) — also added `zustand`
@@ -202,16 +202,20 @@ Each phase is shippable and testable on its own.
 - [x] Reusable `Avatar`-based message rows; open/close from the editor toolbar
 - **Done:** members chat in real time inside the workspace; build green.
 
-### Phase 8 — Voice Call (optional)  → *Voice Call*
+### Phase 8 — Voice Call (optional)  ⏸️ **DEFERRED**  → *Voice Call*
 - [ ] WebRTC mesh (≤4 peers), audio only
 - [ ] Signaling over Liveblocks broadcast (offer/answer/ICE)
 - [ ] Mute / join / leave controls, speaking indicator
-- **Done when:** members hear each other; mute/leave works.
+- **Skipped for now** — optional, and needs two live mics to verify. Can add on request.
 
-### Phase 9 — Version History & Read-only  → *Version History, Read-only Mode*
-- [ ] Save named versions; history panel with diff + restore
-- [ ] Read-only mode (viewer role or toggle) disables editing but keeps presence
-- **Done when:** you can view past versions, restore one, and viewers can't edit.
+### Phase 9 — Version History & Read-only  ✅ **DONE**  → *Version History, Read-only Mode*
+- [x] Migration `0007_versions.sql`: `versions` table + RLS (members read, editors save, admins prune)
+- [x] Save named snapshots + history panel (`VersionHistoryDialog`) listing author + relative time
+- [x] **Restore** — writes the version content back into the live Yjs doc (`applyContent` handler) so all collaborators update
+- [x] **Read-only lock toggle** in the toolbar (any editor can lock their view); viewer role stays read-only
+- [x] Layers: `api/versions.ts`, `version-actions.ts`, `use-versions` hook
+- **Done:** save a version, see it in history, restore it live, and lock/unlock editing; build green.
+- **⚠️ Manual step (you):** run `supabase/migrations/0007_versions.sql` in the Supabase SQL editor.
 
 ### Phase 10 — Polish & Deploy
 - [x] Redesigned **landing page** — hero with faux-editor preview, feature grid, gradient CTA (`components/landing/*`)
