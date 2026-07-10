@@ -34,6 +34,7 @@ export function CollaborativeEditor({ fileId, language, readOnly }: Props) {
   const setSaveState = useEditorStore((s) => s.setSaveState);
   const setSave = useEditorStore((s) => s.setSave);
   const setGetContent = useEditorStore((s) => s.setGetContent);
+  const setApplyContent = useEditorStore((s) => s.setApplyContent);
 
   const lastSavedRef = useRef("");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -83,6 +84,14 @@ export function CollaborativeEditor({ fileId, language, readOnly }: Props) {
       if (timerRef.current) clearTimeout(timerRef.current);
       void doSave();
     });
+    // Restore: replace the whole document in one Yjs transaction.
+    setApplyContent((text: string) => {
+      const doc = yProvider.getYDoc();
+      doc.transact(() => {
+        yText.delete(0, yText.length);
+        yText.insert(0, text);
+      });
+    });
 
     const observer = (_e: Y.YTextEvent, transaction: Y.Transaction) => {
       if (yText.toString() === lastSavedRef.current) {
@@ -103,6 +112,7 @@ export function CollaborativeEditor({ fileId, language, readOnly }: Props) {
       binding.destroy();
       setSave(null);
       setGetContent(null);
+      setApplyContent(null);
     };
   }, [
     editorRef,
@@ -113,6 +123,7 @@ export function CollaborativeEditor({ fileId, language, readOnly }: Props) {
     setSaveState,
     setSave,
     setGetContent,
+    setApplyContent,
   ]);
 
   const monacoLanguage = getLanguage(language)?.monaco ?? language;

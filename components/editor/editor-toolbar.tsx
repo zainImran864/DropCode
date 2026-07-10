@@ -4,6 +4,7 @@ import {
   FiCheck,
   FiSave,
   FiLock,
+  FiUnlock,
   FiLoader,
   FiPlay,
   FiMessageSquare,
@@ -11,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { PresenceAvatars } from "./presence-avatars";
 import { ExportMenu } from "./export-menu";
+import { VersionHistoryDialog } from "./version-history-dialog";
 import { useEditorStore } from "@/store/editor-store";
 import { useRun } from "@/hooks/use-run";
 import { useChatStore } from "@/store/chat-store";
@@ -18,6 +20,7 @@ import { useChatStore } from "@/store/chat-store";
 interface Props {
   workspaceId: string;
   workspaceName: string;
+  activeFileId?: string;
   activeFileName?: string;
   activeFileLanguage?: string;
   canEdit: boolean;
@@ -46,6 +49,7 @@ function SaveStatus() {
 export function EditorToolbar({
   workspaceId,
   workspaceName,
+  activeFileId,
   activeFileName,
   activeFileLanguage,
   canEdit,
@@ -53,6 +57,8 @@ export function EditorToolbar({
 }: Props) {
   const save = useEditorStore((s) => s.save);
   const saveState = useEditorStore((s) => s.saveState);
+  const locked = useEditorStore((s) => s.locked);
+  const toggleLock = useEditorStore((s) => s.toggleLock);
   const { run, isRunning } = useRun();
   const toggleChat = useChatStore((s) => s.toggle);
   const unread = useChatStore((s) => s.unread);
@@ -85,6 +91,25 @@ export function EditorToolbar({
             </span>
           )}
         </Button>
+        {activeFileId && (
+          <VersionHistoryDialog
+            workspaceId={workspaceId}
+            fileId={activeFileId}
+            canEdit={canEdit}
+          />
+        )}
+        {canEdit && (
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={locked ? "Unlock editing" : "Lock (read-only)"}
+            title={locked ? "Unlock editing" : "Lock (read-only)"}
+            onClick={toggleLock}
+            className={locked ? "text-amber-600" : undefined}
+          >
+            {locked ? <FiLock size={16} /> : <FiUnlock size={16} />}
+          </Button>
+        )}
         <ExportMenu
           workspaceId={workspaceId}
           workspaceName={workspaceName}

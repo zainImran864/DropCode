@@ -51,10 +51,20 @@ export interface Version {
   id: string;
   file_id: string;
   workspace_id: string;
-  author_id: string;
+  author_id: string | null;
   content: string;
   message: string | null;
   created_at: string;
+}
+
+/** Version metadata for the history list (no content), with author name. */
+export interface VersionMeta {
+  id: string;
+  file_id: string;
+  author_id: string | null;
+  message: string | null;
+  created_at: string;
+  author_name: string | null;
 }
 
 /** Max members allowed per workspace — enforced in API + DB trigger. */

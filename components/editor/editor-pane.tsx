@@ -10,6 +10,7 @@ import { EditorSkeleton } from "./editor-skeleton";
 import { OutputPanel } from "./output-panel";
 import { ChatSidebar } from "@/components/chat/chat-sidebar";
 import { useFileStore } from "@/store/file-store";
+import { useEditorStore } from "@/store/editor-store";
 import type { FileMeta } from "@/types/database";
 
 // Load the Monaco editor client-only: y-monaco imports `monaco-editor`, which
@@ -39,6 +40,8 @@ export function EditorPane({
 }: Props) {
   const activeFileId = useFileStore((s) => s.activeFileId);
   const setActiveFile = useFileStore((s) => s.setActiveFile);
+  const locked = useEditorStore((s) => s.locked);
+  const effectiveReadOnly = readOnly || locked;
 
   // Keep the selection valid: default to the first file, reset if it's gone.
   useEffect(() => {
@@ -66,10 +69,11 @@ export function EditorPane({
           <EditorToolbar
             workspaceId={workspaceId}
             workspaceName={workspaceName}
+            activeFileId={activeFile?.id}
             activeFileName={activeFile?.name}
             activeFileLanguage={activeFile?.language}
             canEdit={canEdit}
-            readOnly={readOnly}
+            readOnly={effectiveReadOnly}
           />
           <div className="min-h-0 flex-1">
             {activeFile ? (
@@ -77,7 +81,7 @@ export function EditorPane({
                 key={activeFile.id}
                 fileId={activeFile.id}
                 language={activeFile.language}
-                readOnly={readOnly}
+                readOnly={effectiveReadOnly}
               />
             ) : (
               <EmptyEditorState canEdit={canEdit} />
