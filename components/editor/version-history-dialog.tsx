@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { listVersionsAction } from "@/app/(app)/version-actions";
 import { useVersions } from "@/hooks/use-versions";
 import type { VersionMeta } from "@/types/database";
@@ -80,7 +81,17 @@ export function VersionHistoryDialog({ workspaceId, fileId, canEdit }: Props) {
 
         <div className="max-h-72 divide-y divide-zinc-100 overflow-y-auto dark:divide-zinc-800">
           {loading ? (
-            <p className="py-6 text-center text-sm text-zinc-400">Loading…</p>
+            <div className="flex flex-col gap-3 py-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <div className="flex flex-col gap-1.5">
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                  <Skeleton className="h-8 w-20" />
+                </div>
+              ))}
+            </div>
           ) : versions.length === 0 ? (
             <p className="py-6 text-center text-sm text-zinc-400">
               No versions yet. Save one above.

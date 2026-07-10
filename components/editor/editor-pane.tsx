@@ -11,6 +11,7 @@ import { OutputPanel } from "./output-panel";
 import { ChatSidebar } from "@/components/chat/chat-sidebar";
 import { useFileStore } from "@/store/file-store";
 import { useEditorStore } from "@/store/editor-store";
+import { useRun } from "@/hooks/use-run";
 import type { FileMeta } from "@/types/database";
 
 // Load the Monaco editor client-only: y-monaco imports `monaco-editor`, which
@@ -41,6 +42,8 @@ export function EditorPane({
   const activeFileId = useFileStore((s) => s.activeFileId);
   const setActiveFile = useFileStore((s) => s.setActiveFile);
   const locked = useEditorStore((s) => s.locked);
+  const save = useEditorStore((s) => s.save);
+  const { run } = useRun();
   const effectiveReadOnly = readOnly || locked;
 
   // Keep the selection valid: default to the first file, reset if it's gone.
@@ -55,6 +58,24 @@ export function EditorPane({
   }, [files, activeFileId, setActiveFile]);
 
   const activeFile = files.find((f) => f.id === activeFileId) ?? null;
+
+  // Keyboard shortcuts: Ctrl/Cmd+S save, Ctrl/Cmd+Enter run.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const mod = e.ctrlKey || e.metaKey;
+      if (!mod) return;
+      const key = e.key.toLowerCase();
+      if (key === "s") {
+        e.preventDefault();
+        save?.();
+      } else if (key === "enter" && activeFile) {
+        e.preventDefault();
+        run(activeFile.language);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [save, run, activeFile]);
 
   return (
     <Room workspaceId={workspaceId}>

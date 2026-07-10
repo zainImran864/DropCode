@@ -6,6 +6,7 @@ import { getWorkspaceMembers } from "@/api/members";
 import { getFiles } from "@/api/files";
 import { requireUser } from "@/lib/auth";
 import { publicEnv, serverEnv } from "@/lib/env";
+import type { FileMeta } from "@/types/database";
 import { buttonClasses } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MemberAvatars } from "@/components/workspace/member-avatars";
@@ -21,17 +22,21 @@ export default async function WorkspacePage({
 }) {
   const { id } = await params;
   const user = await requireUser();
-  const workspace = await getWorkspaceById(id);
+  const liveblocksEnabled = Boolean(serverEnv().LIVEBLOCKS_SECRET_KEY);
+
+  // Fetch workspace, members and files concurrently for a fast page load.
+  const [workspace, members, files] = await Promise.all([
+    getWorkspaceById(id),
+    getWorkspaceMembers(id),
+    liveblocksEnabled ? getFiles(id) : Promise.resolve([] as FileMeta[]),
+  ]);
   if (!workspace) notFound();
 
-  const members = await getWorkspaceMembers(id);
   const myRole = members.find((m) => m.user_id === user.id)?.role ?? null;
   const canManage = myRole === "owner" || myRole === "admin";
   const canEdit =
     myRole === "owner" || myRole === "admin" || myRole === "editor";
   const readOnly = myRole === "viewer";
-  const liveblocksEnabled = Boolean(serverEnv().LIVEBLOCKS_SECRET_KEY);
-  const files = liveblocksEnabled ? await getFiles(id) : [];
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-zinc-50 dark:bg-black">
