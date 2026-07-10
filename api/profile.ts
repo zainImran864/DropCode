@@ -24,3 +24,15 @@ export async function getCurrentProfile(): Promise<Profile | null> {
   if (error) return null;
   return data as Profile;
 }
+
+export async function updateProfile(
+  userId: string,
+  fields: { display_name?: string; avatar_url?: string },
+): Promise<{ error: string } | null> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("profiles")
+    .update(fields)
+    .eq("id", userId);
+  return error ? { error: error.message } : null;
+}
